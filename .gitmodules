@@ -7,3 +7,9 @@
 [submodule "FundMe/lib/openzeppelin-contracts"]
 	path = FundMe/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "Crowdfund/lib/openzeppelin-contracts"]
+	path = Crowdfund/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "Crowdfund/lib/chainlink-brownie-contracts"]
+	path = Crowdfund/lib/chainlink-brownie-contracts
+	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
