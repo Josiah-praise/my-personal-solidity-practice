@@ -90,7 +90,7 @@ contract CrowdFund{
     }
 
     modifier campaignExists(uint256 _index) {
-        if (_index > campaigns.length - 1) {
+        if (campaigns.length == 0 || _index > campaigns.length - 1) {
             revert CampaignNotFoundError();
         }
         _;
@@ -116,7 +116,9 @@ contract CrowdFund{
     )
     external 
     isFutureDate(_epochDate)
-    notZeroGoal(_goal){
+    notZeroGoal(_goal)
+    returns (uint256)
+    {
 
         // convert _goal and _minumDonationInUSD to wei
         (,int256 oneETHToUSDUnits,,,) = priceFeed.latestRoundData();
@@ -134,6 +136,8 @@ contract CrowdFund{
 
 
         emit CreateCampaign(msg.sender, _minimumDonationInUSD, _goal, _details, _epochDate);
+
+        return campaigns.length - 1;
     }
 
     function fund(uint256 _index)
@@ -151,6 +155,9 @@ contract CrowdFund{
         }
     }
 
+    function getMyDonation(uint256 _index)external campaignExists(_index) view returns(uint256){
+        return campaigns[_index].senderDonations[msg.sender];
+    }
 
     function withdraw(uint256 _index)
     external 
@@ -168,7 +175,7 @@ contract CrowdFund{
         }
 
         emit Withdrawal(msg.sender, balance);
-        return success;
+        return true;
     }
 
     function refund(uint256 _index)
