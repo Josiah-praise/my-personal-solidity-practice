@@ -106,16 +106,14 @@ contract CrowdFundTest is Test{
 
         assertEq(purse, amount*2); 
 
-        // TODO check if the user's total donations for the campaign 
 
-        // assert that james and john's total donations is valid
-        // vm.startPrank(ricky);
-        // assertEq(amount, instance.getTotalDonations(_index));
-        // vm.stopPrank();
+        vm.startPrank(ricky);
+        assertEq(amount, instance.getMyDonation(_index));
+        vm.stopPrank();
 
-        // vm.startPrank(james);
-        // assertEq(amount, instance.getTotalDonations(_index));
-        // vm.stopPrank();
+        vm.startPrank(james);
+        assertEq(amount, instance.getMyDonation(_index));
+        vm.stopPrank();
     }
 
     function test_RevertsWhen_campaignDoesNotExist()external {
