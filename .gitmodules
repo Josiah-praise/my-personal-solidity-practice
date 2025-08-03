@@ -13,3 +13,6 @@
 [submodule "Crowdfund/lib/chainlink-brownie-contracts"]
 	path = Crowdfund/lib/chainlink-brownie-contracts
 	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
+[submodule "Raffle/lib/chainlink-brownie-contracts"]
+	path = Raffle/lib/chainlink-brownie-contracts
+	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
