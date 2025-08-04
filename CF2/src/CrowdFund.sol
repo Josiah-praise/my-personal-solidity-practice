@@ -141,10 +141,9 @@ contract CrowdFund{
         // perform swap 
         campaign.donors[donorIndex] = lastDonor;
         // update last elements index
-        lastDonor.index = donorIndex;
+        campaign.donors[donorIndex].index = donorIndex;
         campaign.donors.pop(); // delete last donor
-        Donor memory newDonor;
-        campaign.addressToDonors[msg.sender] = newDonor;
+        delete campaign.addressToDonors[msg.sender];
         
 
         (bool success, ) = msg.sender.call{value: amount}(""); // refund donor

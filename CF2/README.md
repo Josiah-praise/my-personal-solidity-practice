@@ -128,7 +128,7 @@ event Refund(address indexed donor, uint256 amount);
 ## 🌐 Deployment
 
 **Network**: Ethereum Sepolia Testnet  
-**Block Explorer**: [View on Sepolia Etherscan](https://sepolia.etherscan.io/address/0x4943a769b8ec269b43140ece1db229d231f893e1)
+**Block Explorer**: [View on Sepolia Etherscan](https://sepolia.etherscan.io/address/0x5cd847be0dc6083c78ad4955fd1245db746c803d)
 
 ## 📖 Usage Examples
 
