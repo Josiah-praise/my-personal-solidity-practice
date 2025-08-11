@@ -16,3 +16,6 @@
 [submodule "Raffle/lib/chainlink-brownie-contracts"]
 	path = Raffle/lib/chainlink-brownie-contracts
 	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
+[submodule "piggyBank/lib/openzeppelin-contracts"]
+	path = piggyBank/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
