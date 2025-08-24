@@ -1,0 +1,31 @@
+/// @notice simple dispatcher for the add function
+#define macro MAIN() = takes(0) returns(0) {
+    0x00 calldataload
+    0xe0 shr
+    0x771602f7 eq
+    addJump
+    jumpi
+
+    0x0 0x0 revert
+
+    addJump:
+        ADD()
+
+}
+
+/// calldata after selector: 0x0000000000000000000000000000000000000000000000000000000000000002
+/// 0000000000000000000000000000000000000000000000000000000000000005
+/// @notice simple addition while ignoring function dispatcher
+#define macro ADD() = takes(0) returns(0) {
+    0x4 calldataload // [2]
+    0x24 calldataload // [5,2]
+    add // [7]
+    0x40 mload // [offset, 7]
+    swap1 // [7, offset]
+    0x40 mload // [offset, 7, offset]
+    mstore // [offset]
+    dup1 // [offset, offset]
+    0x20 add // [offset+32, offset]
+    0x40 mstore // [offset]
+    0x20 return
+}
