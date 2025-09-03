@@ -1,1 +1,0 @@
-My first attempt at creating an ERC20 Token

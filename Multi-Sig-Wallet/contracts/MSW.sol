@@ -3,13 +3,13 @@ pragma solidity ^0.8.23;
 
 import {Transaction} from "./structs/transaction.sol";
 
-///@notice a multisig wallet. This wallet has a set number of owners and requires
-/// approval from the owners. The number of approvals required must be at 
+/// @notice a multisig wallet. This wallet has a set number of owners and requires
+/// approval from the owners. The number of approvals required must be at
 /// least equal to the confirmation threshold
 contract MultiSigWallet{
-    mapping(bytes4=>mapping(address=>bool)) public confirmations;
-    mapping(bytes4=> Transaction) public transactions_map;
-    bytes4[] public transaction_ids;
+    mapping(uint=>mapping(address=>bool)) public confirmations;
+    mapping(uint=> Transaction) public transactions_map;
+    uint[] public transaction_ids;
 
     uint public immutable i_confirmationThreshold;
     mapping(address=>bool) public isOwner;
@@ -23,9 +23,9 @@ contract MultiSigWallet{
     error MSG__ExecutionFailed();
     error MSG__AlreadyExecuted();
 
-    event Proposal(bytes4 indexed transactionId);
-    event Approval(address indexed approver, bytes4 indexed transactionID);
-    event Execution(bytes4 indexed transactionId);
+    event Proposal(uint indexed transactionId);
+    event Approval(address indexed approver, uint indexed transactionID);
+    event Execution(uint indexed transactionId);
 
     /// @notice ensures only owners have access control
     modifier onlyOwner{
@@ -38,12 +38,13 @@ contract MultiSigWallet{
         if (owners.length == 0) {
             revert("Must pass at least one owner");
         }
-        if (threshold > owners.length){
-            revert("Threshold cannot be more than the number of owners");
-        }
         if (threshold == 0) {
             revert("Threshold cannot be 0");
         }
+        if (threshold > owners.length){
+            revert("Threshold cannot be more than the number of owners");
+        }
+        
         
         for(uint i; i < owners.length; ++i) {
             isOwner[owners[i]] = true;
@@ -54,27 +55,22 @@ contract MultiSigWallet{
     /// @notice submit a proposal for approval by the owners
     function submitProposal(
         uint value,
-        bytes calldata data,
         address to
-    )external returns(bytes4){
+    )external onlyOwner returns(uint){
         if (to == address(0)){
             revert MSG__ZeroAddressError();
         }
-        // get next index
-        uint nextIndex;
         
-        if (transaction_ids.length > 0)
-            nextIndex = transaction_ids.length;
+        uint transaction_id = transaction_ids.length;
         
         // create transaction
-        Transaction memory transaction = Transaction(value, 0, nextIndex, data, to, true, false);
-        // create key
-        bytes4 transaction_id = bytes4(keccak256(abi.encodePacked(msg.sender, block.timestamp)));
-        // add new id to array
-        transaction_ids.push(transaction_id);
+        Transaction memory transaction = Transaction(value, 0, transaction_id, to, true, false);
 
         // add transaction to transactions_map
         transactions_map[transaction_id] = transaction;
+
+        // add transaction to id array
+        transaction_ids.push(transaction_id);
 
         emit Proposal(transaction_id);
 
@@ -82,7 +78,7 @@ contract MultiSigWallet{
     }
 
     /// @notice approve a proposal...only owners can approve proposals
-    function approveProposal(bytes4 proposalID)external onlyOwner {
+    function approveProposal(uint proposalID)external onlyOwner {
         if(transactions_map[proposalID].exists != true) {
             revert MSG__ProposalNotFound();
         }
@@ -98,7 +94,7 @@ contract MultiSigWallet{
     }
 
     /// @notice execute a proposal if it meets the confirmation threshold
-    function executeProposal(bytes4 proposalID)external {
+    function executeProposal(uint proposalID)external {
         if(transactions_map[proposalID].exists != true) {
             revert MSG__ProposalNotFound();
         }
@@ -111,17 +107,32 @@ contract MultiSigWallet{
         if (transactions_map[proposalID].value > address(this).balance) {
             revert MSG__InsufficientFunds();
         }
-        Transaction memory transaction = transactions_map[proposalID];
+        Transaction storage transaction = transactions_map[proposalID];
 
         transaction.executed = true;
 
         // execute transaction
-        (bool success,) = transaction.to.call{value: transaction.value}(transaction.data);
+        (bool success,) = transaction.to.call{value: transaction.value}("");
 
         if (!success) {
             revert MSG__ExecutionFailed();
         }
         emit Execution(proposalID);
+    }
+
+    /// @notice returns an all proposal ids as an array
+    function getAllProposals() external view returns (uint[] memory) {
+        return transaction_ids;
+    }
+
+    /// @notice gets a proposal by proposalID
+    function getProposal(uint proposalID) external view returns (Transaction memory) {
+        return transactions_map[proposalID];
+    }
+
+    /// @notice checks if a proposal has been approved
+    function hasApproved(uint proposalID, address approver) external view returns (bool) {
+        return confirmations[proposalID][approver];
     }
 
     /// @notice for receiving eth into the contract's account
